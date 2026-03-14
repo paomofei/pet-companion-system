@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 import { BadgeEngineService } from "../badges/badge-engine.service";
+import { DEFAULT_WISH_ICON } from "../common/constants/default-icons";
 import { ERROR_CODES } from "../common/constants/error-codes";
 import { AppException } from "../common/exceptions/app.exception";
 import { ContentPolicyService } from "../common/services/content-policy.service";
@@ -38,13 +39,12 @@ export class WishesService {
   }
 
   async create(userId: number, dto: CreateWishDto) {
-    const icon = this.contentPolicy.normalizeText(dto.icon, "心愿图标", 10);
     const title = this.contentPolicy.normalizeText(dto.title, "心愿标题", 20);
 
     const wish = await this.prisma.wish.create({
       data: {
         userId,
-        icon,
+        icon: DEFAULT_WISH_ICON,
         title,
         weight: RARITY_WEIGHT_MAP[dto.rarity]
       }
@@ -70,7 +70,7 @@ export class WishesService {
     const updated = await this.prisma.wish.update({
       where: { id: wish.id },
       data: {
-        icon: dto.icon ? this.contentPolicy.normalizeText(dto.icon, "心愿图标", 10) : wish.icon,
+        icon: DEFAULT_WISH_ICON,
         title: dto.title ? this.contentPolicy.normalizeText(dto.title, "心愿标题", 20) : wish.title,
         weight: dto.rarity ? RARITY_WEIGHT_MAP[dto.rarity] : wish.weight
       }
@@ -245,7 +245,7 @@ export class WishesService {
 
     return history.map((wish: { id: number; icon: string; title: string; weight: number; drawnAt: Date | null }) => ({
       id: wish.id,
-      icon: wish.icon,
+      icon: DEFAULT_WISH_ICON,
       title: wish.title,
       rarity: this.toRarity(wish.weight),
       drawnAt: wish.drawnAt?.toISOString() ?? new Date().toISOString()
@@ -259,7 +259,7 @@ export class WishesService {
     return {
       drawnWish: {
         id: wish.id,
-        icon: wish.icon,
+        icon: DEFAULT_WISH_ICON,
         title: wish.title,
         rarity: this.toRarity(wish.weight),
         drawnAt: wish.drawnAt?.toISOString() ?? new Date().toISOString()
@@ -272,7 +272,7 @@ export class WishesService {
   private toWishItem(wish: { id: number; icon: string; title: string; weight: number; status: number }) {
     return {
       id: wish.id,
-      icon: wish.icon,
+      icon: DEFAULT_WISH_ICON,
       title: wish.title,
       weight: wish.weight,
       rarity: this.toRarity(wish.weight),

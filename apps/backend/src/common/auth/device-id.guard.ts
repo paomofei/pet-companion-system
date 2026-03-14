@@ -8,13 +8,6 @@ import { UsersService } from "../../users/users.service";
 import { IS_PUBLIC_KEY } from "./public.decorator";
 import { SKIP_DEVICE_ID_KEY } from "./skip-device-id.decorator";
 
-type DeviceAwareRequest = Request & {
-  deviceId?: string;
-  user?: {
-    id: number;
-  };
-};
-
 @Injectable()
 export class DeviceIdGuard implements CanActivate {
   constructor(
@@ -36,7 +29,7 @@ export class DeviceIdGuard implements CanActivate {
       context.getClass()
     ]);
 
-    const request = context.switchToHttp().getRequest<DeviceAwareRequest>();
+    const request = context.switchToHttp().getRequest<Request>();
     const headerValue = request.headers["x-device-id"];
     const deviceId = typeof headerValue === "string" ? headerValue.trim() : headerValue?.[0]?.trim();
     if (!deviceId) {

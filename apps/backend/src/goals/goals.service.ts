@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 import { BadgeEngineService } from "../badges/badge-engine.service";
+import { DEFAULT_GOAL_ICON } from "../common/constants/default-icons";
 import { ERROR_CODES } from "../common/constants/error-codes";
 import { AppException } from "../common/exceptions/app.exception";
 import { ContentPolicyService } from "../common/services/content-policy.service";
@@ -29,23 +30,22 @@ export class GoalsService {
     });
     const progressMap = await this.getProgressMap(this.prisma, userId);
 
-    return goals.map((goal: { id: number; icon: string; title: string }) => ({
+    return goals.map((goal: { id: number; title: string }) => ({
       id: goal.id,
-      icon: goal.icon,
+      icon: DEFAULT_GOAL_ICON,
       title: goal.title,
       ...progressMap.get(goal.id)!
     }));
   }
 
   async createGoal(userId: number, dto: CreateGoalDto) {
-    const icon = this.contentPolicy.normalizeText(dto.icon, "图标", 10);
     const title = this.contentPolicy.normalizeText(dto.title, "目标标题", 20);
 
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const goal = await tx.goal.create({
         data: {
           userId,
-          icon,
+          icon: DEFAULT_GOAL_ICON,
           title
         }
       });
@@ -54,7 +54,7 @@ export class GoalsService {
 
       return {
         id: goal.id,
-        icon: goal.icon,
+        icon: DEFAULT_GOAL_ICON,
         title: goal.title,
         completed: 0,
         total: 0,
@@ -79,7 +79,7 @@ export class GoalsService {
     const updatedGoal = await this.prisma.goal.update({
       where: { id: goalId },
       data: {
-        icon: dto.icon ? this.contentPolicy.normalizeText(dto.icon, "图标", 10) : goal.icon,
+        icon: DEFAULT_GOAL_ICON,
         title: dto.title ? this.contentPolicy.normalizeText(dto.title, "目标标题", 20) : goal.title
       }
     });
@@ -88,7 +88,7 @@ export class GoalsService {
 
     return {
       id: updatedGoal.id,
-      icon: updatedGoal.icon,
+      icon: DEFAULT_GOAL_ICON,
       title: updatedGoal.title,
       completed: progress.completed,
       total: progress.total,

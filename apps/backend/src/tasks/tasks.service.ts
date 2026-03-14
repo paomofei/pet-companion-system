@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Prisma, type PrismaClient } from "@prisma/client";
 
 import { BadgeEngineService } from "../badges/badge-engine.service";
+import { DEFAULT_GOAL_ICON } from "../common/constants/default-icons";
 import { ERROR_CODES } from "../common/constants/error-codes";
 import { AppException } from "../common/exceptions/app.exception";
 import { ContentPolicyService } from "../common/services/content-policy.service";
@@ -415,7 +416,7 @@ export class TasksService {
       repeatType: task.repeatType,
       ...(task.completedAt ? { completedAt: task.completedAt.toISOString() } : {}),
       goalId: task.goalId,
-      goalIcon: task.goal?.icon ?? "🎯",
+      goalIcon: DEFAULT_GOAL_ICON,
       goalTitle: task.goal?.title ?? "",
       isDelayedCopy: task.isDelayedCopy
     };

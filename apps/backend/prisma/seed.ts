@@ -35,17 +35,18 @@ async function main() {
 
     await tx.badge.createMany({
       data: [
-        { code: "first_task", name: "初出茅庐", description: "完成第 1 个任务", icon: "⭐", category: "坚持", threshold: 1 },
-        { code: "streak_7", name: "坚持一周", description: "连续打卡 7 天", icon: "🔥", category: "坚持", threshold: 7 },
-        { code: "streak_21", name: "持之以恒", description: "连续打卡 21 天", icon: "💪", category: "坚持", threshold: 21 },
-        { code: "streak_30", name: "习惯大师", description: "连续打卡 30 天", icon: "🏆", category: "坚持", threshold: 30 },
-        { code: "tasks_50", name: "勤劳小蜜蜂", description: "累计完成 50 个任务", icon: "🐝", category: "学霸", threshold: 50 },
-        { code: "tasks_100", name: "百战百胜", description: "累计完成 100 个任务", icon: "💯", category: "学霸", threshold: 100 },
-        { code: "pet_lv5", name: "宠物铲屎官", description: "宠物升到 5 级", icon: "🐾", category: "宠物", threshold: 5 },
-        { code: "pet_lv10", name: "最佳饲养员", description: "宠物升到 10 级", icon: "👑", category: "宠物", threshold: 10 },
-        { code: "first_goal", name: "目标制定者", description: "创建第 1 个目标", icon: "🎯", category: "规划", threshold: 1 },
-        { code: "goal_complete", name: "目标达成者", description: "达成第 1 个目标", icon: "🏅", category: "规划", threshold: 1 },
-        { code: "first_draw", name: "许愿新手", description: "完成第 1 次抽奖", icon: "🎰", category: "许愿", threshold: 1 }
+        { code: "first_task", name: "初出茅庐", description: "第一次完成任务", icon: "⭐", category: "任务习惯", threshold: 1 },
+        { code: "day_tasks_3", name: "今日满满", description: "单日完成3个任务", icon: "✅", category: "任务习惯", threshold: 3 },
+        { code: "streak_3", name: "坚持起步", description: "连续完成3天", icon: "🌱", category: "任务习惯", threshold: 3 },
+        { code: "streak_7", name: "坚持一周", description: "连续完成7天", icon: "🔥", category: "任务习惯", threshold: 7 },
+        { code: "week_completion_80", name: "本周小明星", description: "单周完成率达到80%", icon: "🌟", category: "任务习惯", threshold: 80 },
+        { code: "first_goal", name: "目标制定者", description: "第一次创建目标", icon: "🎯", category: "目标成长", threshold: 1 },
+        { code: "goal_complete", name: "目标达成者", description: "第一个目标完成", icon: "🏅", category: "目标成长", threshold: 1 },
+        { code: "goal_tasks_5", name: "目标推进中", description: "单个目标下累计完成5个任务", icon: "📈", category: "目标成长", threshold: 5 },
+        { code: "goals_parallel_3", name: "多线并进", description: "同时推进3个目标", icon: "🧭", category: "目标成长", threshold: 3 },
+        { code: "first_interact", name: "小手碰碰", description: "第一次与宠物互动", icon: "🐾", category: "宠物互动", threshold: 1 },
+        { code: "interact_10", name: "陪伴达人", description: "累计互动10次", icon: "🎾", category: "宠物互动", threshold: 10 },
+        { code: "first_draw", name: "幸运开箱", description: "第一次幸运抽奖", icon: "🎰", category: "宠物互动", threshold: 1 }
       ]
     });
   });

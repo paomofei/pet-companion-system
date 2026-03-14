@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 import { BadgeEngineService } from "../badges/badge-engine.service";
+import { DEFAULT_GOAL_ICON } from "../common/constants/default-icons";
 import { ContentPolicyService } from "../common/services/content-policy.service";
 import { todayDateString } from "../common/utils/date.util";
 import { PrismaService } from "../prisma/prisma.service";
@@ -77,7 +78,7 @@ export class UsersService {
           const goal = await tx.goal.create({
             data: {
               userId: user.id,
-              icon: "📚",
+              icon: DEFAULT_GOAL_ICON,
               title: "每日好习惯"
             }
           });
