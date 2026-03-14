@@ -22,6 +22,7 @@ import {
   Wish,
   WishHistoryItem
 } from "../types";
+import { addDays, formatWeekdayLabel, getTodayIso } from "../lib/date";
 import { ApiError } from "./errors";
 
 const STORAGE_KEY = "pet-sys-mock-db-v1";
@@ -45,10 +46,11 @@ interface BadgeTemplate {
   id: number;
   code: string;
   name: string;
+  description: string;
   icon: string;
   category: string;
   threshold: number;
-  metric: "tasks" | "streak" | "energy" | "petLevel";
+  metric: "tasks" | "streak" | "energy" | "petLevel" | "goals" | "completedGoals" | "interactions";
 }
 
 interface MockDb {
@@ -69,6 +71,7 @@ interface MockDb {
     maxStreak: number;
     totalEnergyEarned: number;
     totalTasksDone: number;
+    totalInteractions: number;
   } | null;
   pet: (PetCore & { pendingDraw: boolean }) | null;
   items: Item[];
@@ -87,12 +90,22 @@ const defaultItems: Item[] = [
   { id: 5, name: "飞盘", icon: "🥏", costEnergy: 80, gainXp: 25, sortOrder: 5 }
 ];
 
+const goalIcon = "🎯";
+const wishIcon = "🎁";
+
 const badgeTemplates: BadgeTemplate[] = [
-  { id: 1, code: "first_task", name: "初出茅庐", icon: "⭐", category: "坚持", threshold: 1, metric: "tasks" },
-  { id: 2, code: "streak_7", name: "坚持一周", icon: "🔥", category: "坚持", threshold: 7, metric: "streak" },
-  { id: 3, code: "streak_21", name: "持之以恒", icon: "💪", category: "坚持", threshold: 21, metric: "streak" },
-  { id: 4, code: "energy_100", name: "能量小富翁", icon: "⚡", category: "成长", threshold: 100, metric: "energy" },
-  { id: 5, code: "pet_level_3", name: "默契搭档", icon: "🐾", category: "陪伴", threshold: 3, metric: "petLevel" }
+  { id: 1, code: "first_task", name: "初出茅庐", description: "第一次完成任务", icon: "⭐", category: "任务习惯", threshold: 1, metric: "tasks" },
+  { id: 2, code: "tasks_10", name: "勤奋小帮手", description: "累计完成 10 个任务", icon: "📚", category: "任务习惯", threshold: 10, metric: "tasks" },
+  { id: 3, code: "streak_3", name: "三日连胜", description: "连续完成任务 3 天", icon: "🌤️", category: "任务习惯", threshold: 3, metric: "streak" },
+  { id: 4, code: "streak_7", name: "本周小明星", description: "连续完成任务 7 天", icon: "🌟", category: "任务习惯", threshold: 7, metric: "streak" },
+  { id: 5, code: "first_goal", name: "梦想起航", description: "创建第一个大目标", icon: "🎯", category: "目标成长", threshold: 1, metric: "goals" },
+  { id: 6, code: "goals_3", name: "目标收藏家", description: "累计创建 3 个大目标", icon: "🗂️", category: "目标成长", threshold: 3, metric: "goals" },
+  { id: 7, code: "goal_complete_1", name: "目标达阵", description: "第一次完成一个大目标", icon: "🏁", category: "目标成长", threshold: 1, metric: "completedGoals" },
+  { id: 8, code: "goal_complete_3", name: "坚持规划家", description: "累计完成 3 个大目标", icon: "🏆", category: "目标成长", threshold: 3, metric: "completedGoals" },
+  { id: 9, code: "first_interact", name: "小手碰碰", description: "第一次与宠物互动", icon: "🐾", category: "宠物互动", threshold: 1, metric: "interactions" },
+  { id: 10, code: "interact_10", name: "陪伴达人", description: "累计完成 10 次宠物互动", icon: "💞", category: "宠物互动", threshold: 10, metric: "interactions" },
+  { id: 11, code: "pet_level_2", name: "默契发芽", description: "把宠物升到 2 级", icon: "🌱", category: "宠物互动", threshold: 2, metric: "petLevel" },
+  { id: 12, code: "pet_level_5", name: "超级拍档", description: "把宠物升到 5 级", icon: "👑", category: "宠物互动", threshold: 5, metric: "petLevel" }
 ];
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -108,21 +121,14 @@ const delay = <T,>(fn: () => T, ms = 180): Promise<ApiEnvelope<T>> =>
     }, ms);
   });
 
-const getTodayIso = () => new Date().toISOString().slice(0, 10);
-
-const shiftDate = (base: string, diff: number) => {
-  const date = new Date(`${base}T00:00:00`);
-  date.setDate(date.getDate() + diff);
-  return date.toISOString().slice(0, 10);
-};
+const shiftDate = (base: string, diff: number) => addDays(base, diff);
 
 const formatWeekLabel = (dateString: string) => {
   const today = getTodayIso();
   if (dateString === today) {
     return "今天";
   }
-  const day = new Date(`${dateString}T00:00:00`).getDay();
-  return ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][day];
+  return formatWeekdayLabel(dateString);
 };
 
 const createEmptyDb = (): MockDb => ({
@@ -256,7 +262,10 @@ const updateBadgeUnlocks = (db: MockDb) => {
     tasks: db.user.totalTasksDone,
     streak: db.user.currentStreak,
     energy: db.user.totalEnergyEarned,
-    petLevel: db.pet.level
+    petLevel: db.pet.level,
+    goals: db.goals.filter((goal) => !goal.deleted).length,
+    completedGoals: db.goals.filter((goal) => !goal.deleted && goal.percentage === 100).length,
+    interactions: db.user.totalInteractions ?? 0
   };
 
   badgeTemplates.forEach((badge) => {
@@ -353,7 +362,8 @@ export const mockApi = {
         currentStreak: 0,
         maxStreak: 0,
         totalEnergyEarned: 0,
-        totalTasksDone: 0
+        totalTasksDone: 0,
+        totalInteractions: 0
       };
       db.pet = {
         id: petId,
@@ -378,7 +388,7 @@ export const mockApi = {
         const goalId = nextId(db, "goal");
         const goal: GoalRecord = {
           id: goalId,
-          icon: "📚",
+          icon: goalIcon,
           title: defaultGoalTitle,
           completed: 0,
           total: 3,
@@ -464,6 +474,7 @@ export const mockApi = {
       }
 
       db.user!.energyBalance -= item.costEnergy;
+      db.user!.totalInteractions = (db.user!.totalInteractions ?? 0) + 1;
       const nextXp = db.pet!.currentXp + item.gainXp;
       const leveledUp = nextXp >= db.pet!.maxXp;
       if (leveledUp) {
@@ -499,14 +510,14 @@ export const mockApi = {
       return sortGoals(db.goals).map((goal) => clone(goal));
     });
   },
-  createGoal(payload: { icon: string; title: string }) {
+  createGoal(payload: { title: string }) {
     return delay<GoalSummary>(() => {
       const db = readDb();
       ensureInitialized(db);
       const now = new Date().toISOString();
       const goal: GoalRecord = {
         id: nextId(db, "goal"),
-        icon: payload.icon,
+        icon: goalIcon,
         title: payload.title.trim(),
         completed: 0,
         total: 0,
@@ -518,7 +529,7 @@ export const mockApi = {
       return persistAndReturn(db, clone(goal));
     });
   },
-  updateGoal(id: number, payload: { icon: string; title: string }) {
+  updateGoal(id: number, payload: { title: string }) {
     return delay<GoalSummary>(() => {
       const db = readDb();
       ensureInitialized(db);
@@ -526,7 +537,7 @@ export const mockApi = {
       if (!goal) {
         throw new ApiError(40002, "目标不存在");
       }
-      goal.icon = payload.icon;
+      goal.icon = goalIcon;
       goal.title = payload.title.trim();
       return persistAndReturn(db, clone(goal));
     });
@@ -747,6 +758,7 @@ export const mockApi = {
     return delay<Badge[]>(() => {
       const db = readDb();
       ensureInitialized(db);
+      syncGoalSnapshots(db);
       recomputeStreaks(db);
       updateBadgeUnlocks(db);
       writeDb(db);
@@ -754,12 +766,16 @@ export const mockApi = {
         tasks: db.user!.totalTasksDone,
         streak: db.user!.currentStreak,
         energy: db.user!.totalEnergyEarned,
-        petLevel: db.pet!.level
+        petLevel: db.pet!.level,
+        goals: db.goals.filter((goal) => !goal.deleted).length,
+        completedGoals: db.goals.filter((goal) => !goal.deleted && goal.percentage === 100).length,
+        interactions: db.user!.totalInteractions ?? 0
       };
       return badgeTemplates.map((template) => ({
         id: template.id,
         code: template.code,
         name: template.name,
+        description: template.description,
         icon: template.icon,
         category: template.category,
         threshold: template.threshold,
@@ -776,14 +792,14 @@ export const mockApi = {
       return db.wishes.filter((wish) => wish.status === 0).map((wish) => clone(wish));
     });
   },
-  createWish(payload: { icon: string; title: string; rarity: 1 | 2 | 3 }) {
+  createWish(payload: { title: string; rarity: 1 | 2 | 3 }) {
     return delay<Wish>(() => {
       const db = readDb();
       ensureInitialized(db);
       const weightMap = { 1: 50, 2: 20, 3: 5 } as const;
       const wish: WishRecord = {
         id: nextId(db, "wish"),
-        icon: payload.icon,
+        icon: wishIcon,
         title: payload.title.trim(),
         rarity: payload.rarity,
         weight: weightMap[payload.rarity],
@@ -794,7 +810,7 @@ export const mockApi = {
       return persistAndReturn(db, clone(wish));
     });
   },
-  updateWish(id: number, payload: { icon: string; title: string; rarity: 1 | 2 | 3 }) {
+  updateWish(id: number, payload: { title: string; rarity: 1 | 2 | 3 }) {
     return delay<Wish>(() => {
       const db = readDb();
       ensureInitialized(db);
@@ -803,7 +819,7 @@ export const mockApi = {
         throw new ApiError(40002, "心愿不存在");
       }
       const weightMap = { 1: 50, 2: 20, 3: 5 } as const;
-      wish.icon = payload.icon;
+      wish.icon = wishIcon;
       wish.title = payload.title.trim();
       wish.rarity = payload.rarity;
       wish.weight = weightMap[payload.rarity];

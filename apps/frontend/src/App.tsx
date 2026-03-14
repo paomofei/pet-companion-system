@@ -17,7 +17,7 @@ const AppShell = () => {
   useOfflineSync();
 
   return (
-    <>
+    <div style={{ minHeight: "100vh", display: "grid", gridTemplateRows: "auto minmax(0, 1fr)" }}>
       <NetworkBanner />
       <Suspense fallback={<div style={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>正在加载页面...</div>}>
         <Routes>
@@ -27,6 +27,6 @@ const AppShell = () => {
           <Route path="*" element={<Landing />} />
         </Routes>
       </Suspense>
-    </>
+    </div>
   );
 };

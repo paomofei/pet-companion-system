@@ -16,6 +16,8 @@
   --mint: #76b98f;
   --sun: #f8c14a;
   --danger: #d7544d;
+  --shadow-subtle: 0 10px 22px rgba(89, 56, 25, 0.08);
+  --shadow-soft: 0 18px 42px rgba(79, 49, 19, 0.12);
   --shadow: 0 20px 50px rgba(79, 49, 19, 0.12);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -42,11 +44,30 @@ body {
     linear-gradient(180deg, #fff9ef 0%, #f7f1e6 100%);
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image:
+    radial-gradient(rgba(124, 93, 54, 0.45) 0.6px, transparent 0.6px),
+    radial-gradient(rgba(255, 255, 255, 0.5) 0.6px, transparent 0.6px);
+  background-position: 0 0, 13px 13px;
+  background-size: 26px 26px;
+}
+
 button,
 input,
 textarea,
 select {
   font: inherit;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    opacity 160ms ease;
 }
 
 button {

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { getTodayIso } from "../lib/date";
 import { ToastMessage, ToastTone, WishHistoryItem } from "../types";
 
 interface DrawModalState {
@@ -22,10 +23,8 @@ interface UiStore {
   dismissToast: (id: number) => void;
 }
 
-const todayIso = new Date().toISOString().slice(0, 10);
-
 export const useUiStore = create<UiStore>((set) => ({
-  selectedDate: todayIso,
+  selectedDate: getTodayIso(),
   petBubble: "今天也一起努力赚能量吧！",
   isWishOverlayOpen: false,
   drawModal: { phase: "closed", result: null },

@@ -1,13 +1,19 @@
 .page {
   display: grid;
-  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
-  gap: 18px;
-  padding: 18px;
+  grid-template-columns: minmax(340px, 380px) minmax(0, 1fr);
+  gap: 20px;
+  height: 100%;
+  min-height: 0;
+  padding: 16px;
+  overflow: hidden;
 }
 
 .main {
+  min-height: 0;
   display: grid;
-  gap: 18px;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 16px;
+  overflow: hidden;
 }
 
 .topBar {
@@ -27,8 +33,21 @@
   border: 1px solid rgba(111, 82, 45, 0.12);
   border-radius: 999px;
   background: rgba(255, 251, 245, 0.72);
+  box-shadow: var(--shadow-subtle), inset 1px 1px 0 rgba(255, 255, 255, 0.72);
   color: var(--ink-soft);
   font-weight: 700;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.tab:hover,
+.tab:focus-visible,
+.bannerLink:hover,
+.primaryButton:hover,
+.secondaryButton:hover,
+.choiceChip:hover,
+.dateTile:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
 }
 
 .tabActive {
@@ -42,9 +61,9 @@
   justify-content: space-between;
   gap: 16px;
   padding: 16px 20px;
-  border-radius: 24px;
+  border-radius: 26px;
   background: linear-gradient(135deg, rgba(255, 244, 223, 0.98), rgba(255, 226, 194, 0.94));
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-soft), inset 1px 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 .bannerLink,
@@ -53,6 +72,7 @@
   padding: 12px 18px;
   border-radius: 999px;
   font-weight: 800;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
 }
 
 .bannerLink,
@@ -60,23 +80,55 @@
   border: 0;
   color: #fff;
   background: linear-gradient(135deg, var(--brand), var(--brand-deep));
+  box-shadow: 0 14px 28px rgba(201, 93, 23, 0.18);
 }
 
 .secondaryButton {
   border: 1px solid rgba(110, 81, 45, 0.14);
-  background: rgba(255, 255, 255, 0.74);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--shadow-subtle), inset 1px 1px 0 rgba(255, 255, 255, 0.72);
   color: var(--ink);
+}
+
+.tabPanelShell {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
 }
 
 .contentPanel,
 .chartCard,
-.cardPane {
+.cardPane,
+.stateCard {
   display: grid;
   gap: 18px;
   padding: 24px;
   border-radius: 30px;
+  border: 1px solid rgba(113, 84, 47, 0.08);
   background: var(--panel);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-soft), inset 1px 1px 0 rgba(255, 255, 255, 0.74);
+}
+
+.fixedPanel {
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.stickySectionHeader {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding-bottom: 4px;
+  background: linear-gradient(180deg, rgba(255, 248, 236, 0.98) 72%, rgba(255, 248, 236, 0));
+}
+
+.scrollSection {
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  gap: 18px;
+  padding-right: 4px;
 }
 
 .sectionHeader,
@@ -98,28 +150,48 @@
 .subHeader p,
 .goalHint,
 .bannerCard p,
-.emptyCard,
-.fieldLabel {
+.fieldLabel,
+.taskSubtle,
+.emptyStateCard p {
   margin: 0;
   color: var(--ink-soft);
 }
 
-.dateRail {
-  display: flex;
+.dateGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 10px;
-  overflow-x: auto;
 }
 
-.dateChip {
-  padding: 11px 14px;
+.dateTile {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  padding: 14px 12px;
   border: 1px solid rgba(111, 82, 45, 0.12);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-subtle), inset 1px 1px 0 rgba(255, 255, 255, 0.78);
+  text-align: left;
 }
 
-.dateChipActive {
-  background: rgba(255, 225, 194, 0.92);
-  border-color: rgba(228, 120, 50, 0.5);
+.dateTile span,
+.dateTile small {
+  color: var(--ink-soft);
+}
+
+.dateTile strong {
+  font-size: 1.05rem;
+}
+
+.dateTileToday {
+  background: linear-gradient(180deg, rgba(255, 239, 217, 0.98), rgba(255, 228, 194, 0.92));
+  border-color: rgba(228, 120, 50, 0.22);
+}
+
+.dateTileActive {
+  border-color: rgba(228, 120, 50, 0.48);
+  box-shadow: 0 14px 28px rgba(228, 120, 50, 0.12);
 }
 
 .bannerCard {
@@ -128,6 +200,7 @@
   padding: 18px 20px;
   border-radius: 24px;
   background: linear-gradient(135deg, rgba(255, 237, 223, 0.96), rgba(255, 212, 190, 0.92));
+  box-shadow: var(--shadow-subtle), inset 1px 1px 0 rgba(255, 255, 255, 0.68);
 }
 
 .bannerActions {
@@ -136,42 +209,80 @@
   gap: 10px;
 }
 
-.dualColumn {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.cardStack,
+.taskList,
 .listGrid,
-.badgeGrid {
+.badgeSectionList {
   display: grid;
   gap: 14px;
 }
 
-.taskCard,
+.taskListCard,
 .goalCard,
 .statCard,
-.badgeCard {
+.badgeCard,
+.emptyStateCard {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   padding: 18px;
   border-radius: 24px;
   border: 1px solid rgba(111, 82, 45, 0.1);
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: var(--shadow-subtle), inset 1px 1px 0 rgba(255, 255, 255, 0.72);
 }
 
-.taskCard {
-  grid-template-columns: auto 1fr auto;
+.taskListCard {
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
 }
 
 .taskCardDone {
-  opacity: 0.65;
+  opacity: 0.7;
 }
 
 .taskCardMissed {
   border-color: rgba(215, 84, 77, 0.26);
+}
+
+.taskMain {
+  display: grid;
+  gap: 6px;
+}
+
+.taskTopLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.taskMetaLine {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--ink-soft);
+}
+
+.taskStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.taskStatusPending {
+  background: rgba(233, 120, 50, 0.12);
+}
+
+.taskStatusDone {
+  background: rgba(118, 185, 143, 0.18);
+  color: #2d6f4b;
+}
+
+.taskStatusMissed {
+  background: rgba(215, 84, 77, 0.12);
+  color: #ab4a42;
 }
 
 .checkButton,
@@ -181,6 +292,7 @@
   border-radius: 14px;
   border: 0;
   font-size: 1rem;
+  box-shadow: var(--shadow-subtle);
 }
 
 .checkButton {
@@ -192,15 +304,11 @@
   color: #fff;
 }
 
-.taskBody {
-  display: grid;
-  gap: 4px;
-}
-
 .taskActions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .taskActions button {
@@ -209,20 +317,21 @@
   color: var(--ink-soft);
 }
 
-.emptyCard {
-  padding: 22px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.54);
+.emptyStateCard {
+  justify-items: center;
+  text-align: center;
+  padding: 28px 24px;
 }
 
-.stateCard {
+.emptyArtwork {
+  width: 72px;
+  height: 72px;
   display: grid;
-  gap: 12px;
-  padding: 24px;
+  place-items: center;
   border-radius: 24px;
-  border: 1px solid rgba(185, 84, 64, 0.14);
-  background: rgba(255, 247, 239, 0.92);
-  box-shadow: var(--shadow);
+  background: linear-gradient(180deg, rgba(255, 233, 206, 0.96), rgba(255, 215, 177, 0.84));
+  box-shadow: var(--shadow-subtle);
+  font-size: 2rem;
 }
 
 .stateCard h2,
@@ -248,6 +357,45 @@
   border: 1px solid rgba(111, 82, 45, 0.14);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.88);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.74);
+}
+
+.inputError {
+  border-color: rgba(215, 84, 77, 0.48) !important;
+  background: rgba(255, 245, 243, 0.94) !important;
+}
+
+.inlineError {
+  color: var(--danger);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.fixedIconField {
+  display: grid;
+  gap: 8px;
+}
+
+.fixedIconPreview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(111, 82, 45, 0.12);
+  background: rgba(255, 250, 242, 0.92);
+  color: var(--ink-soft);
+  box-shadow: var(--shadow-subtle), inset 1px 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.fixedIconEmoji {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: rgba(255, 235, 208, 0.96);
+  font-size: 1.4rem;
 }
 
 .choiceRow {
@@ -261,6 +409,7 @@
   border-radius: 16px;
   border: 1px solid rgba(111, 82, 45, 0.12);
   background: rgba(255, 255, 255, 0.68);
+  box-shadow: var(--shadow-subtle);
 }
 
 .choiceChipActive {
@@ -297,17 +446,24 @@
   font-size: 1.7rem;
 }
 
+.badgeSection {
+  display: grid;
+  gap: 12px;
+}
+
 .badgeGrid {
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .badgeCard {
-  justify-items: center;
-  text-align: center;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: flex-start;
 }
 
 .badgeCardLocked {
-  opacity: 0.48;
+  opacity: 0.68;
 }
 
 .badgeCardUnlocked {
@@ -315,30 +471,78 @@
 }
 
 .badgeIcon {
-  font-size: 2.2rem;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.68);
+  font-size: 2rem;
+  box-shadow: var(--shadow-subtle);
+}
+
+.badgeContent {
+  display: grid;
+  gap: 6px;
+}
+
+.badgeContent p,
+.badgeContent small {
+  margin: 0;
+  color: var(--ink-soft);
 }
 
 .loading {
-  min-height: 100vh;
   display: grid;
   place-items: center;
+  min-height: 100%;
+  padding: 24px;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1080px) {
   .page {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  .main,
+  .tabPanelShell,
+  .fixedPanel,
+  .scrollSection {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 900px) {
+  .dateGrid,
+  .statsGrid,
+  .badgeGrid {
     grid-template-columns: 1fr;
   }
 
-  .dualColumn,
-  .statsGrid {
-    grid-template-columns: 1fr;
+  .taskListCard {
+    grid-template-columns: auto 1fr;
+  }
+
+  .taskActions {
+    grid-column: 2;
+    justify-content: flex-start;
   }
 }
 
 @media (max-width: 720px) {
   .page {
-    gap: 14px;
-    padding: 14px;
+    gap: 16px;
+    padding: 12px;
+  }
+
+  .contentPanel,
+  .chartCard,
+  .cardPane,
+  .stateCard {
+    padding: 18px;
+    border-radius: 24px;
   }
 
   .wishBanner,
@@ -350,19 +554,11 @@
     align-items: stretch;
   }
 
-  .taskCard {
-    grid-template-columns: auto 1fr;
+  .taskListCard {
+    grid-template-columns: 1fr;
   }
 
   .taskActions {
-    grid-column: 1 / -1;
-    justify-content: flex-end;
-  }
-
-  .bannerLink,
-  .primaryButton,
-  .secondaryButton {
-    width: 100%;
-    text-align: center;
+    grid-column: auto;
   }
 }

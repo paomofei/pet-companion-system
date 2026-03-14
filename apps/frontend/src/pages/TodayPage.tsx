@@ -24,7 +24,7 @@ import { useActionGuard } from "../hooks/useActionGuard";
 import { runOfflineCapableAction } from "../offline/useOfflineSync";
 import { PetPanel } from "../components/PetPanel";
 import { ToastViewport } from "../components/ToastViewport";
-import { getTodayIso } from "../lib/date";
+import { formatFullDate, getTodayIso } from "../lib/date";
 import { useNetworkStore } from "../store/networkStore";
 import { useUiStore } from "../store/uiStore";
 import { TodayTab } from "../types";
@@ -63,6 +63,7 @@ export const TodayPage = () => {
 
   const [busyItemId, setBusyItemId] = useState<number | null>(null);
   const guardAction = useActionGuard();
+  const currentDateLabel = useMemo(() => formatFullDate(getTodayIso()), []);
 
   const userQuery = useCurrentUser();
   const profile = userQuery.data;
@@ -254,6 +255,17 @@ export const TodayPage = () => {
     ]);
   };
 
+  const handlePetTap = () => {
+    const petMessages = [
+      `${profile?.pet.name ?? "小猫"} 正在蹭蹭你，好像很开心。`,
+      "它轻轻晃了晃尾巴，像是在给你打气。",
+      "喵呜～它今天也想和你一起完成任务。",
+      "它抬头看了看你，像是在说“继续加油呀”。"
+    ];
+    const nextBubble = petMessages[Math.floor(Math.random() * petMessages.length)];
+    setPetBubble(nextBubble);
+  };
+
   const tabContent = useMemo(() => {
     if (!ready) {
       return null;
@@ -336,7 +348,12 @@ export const TodayPage = () => {
         }
         return (
           <Suspense fallback={<div className={styles.contentPanel}>正在加载成长页...</div>}>
-            <GrowthTab stats={growthStatsQuery.data} weekly={growthWeeklyQuery.data} badges={badgesQuery.data} />
+            <GrowthTab
+              stats={growthStatsQuery.data}
+              weekly={growthWeeklyQuery.data}
+              badges={badgesQuery.data}
+              onPrimaryAction={() => setSearchParams({ tab: "tasks" })}
+            />
           </Suspense>
         );
       case "tasks":
@@ -519,10 +536,12 @@ export const TodayPage = () => {
           profile={profile}
           items={itemsQuery.data ?? []}
           bubble={bubble}
+          currentDateLabel={currentDateLabel}
           isBusy={interactMutation.isPending}
           busyItemId={busyItemId}
           onInteract={handleInteract}
           onGiftClick={handleGiftClick}
+          onPetTap={handlePetTap}
         />
 
         <div className={styles.main}>
@@ -563,7 +582,12 @@ export const TodayPage = () => {
               </button>
             </div>
           </div>
-          <div id={`today-panel-${activeTab}`} role="tabpanel" aria-labelledby={`today-tab-${activeTab}`}>
+          <div
+            id={`today-panel-${activeTab}`}
+            className={styles.tabPanelShell}
+            role="tabpanel"
+            aria-labelledby={`today-tab-${activeTab}`}
+          >
             {tabContent}
           </div>
         </div>

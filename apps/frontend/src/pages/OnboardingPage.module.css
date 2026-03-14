@@ -83,6 +83,17 @@
   background: rgba(255, 255, 255, 0.78);
 }
 
+.inputError {
+  border-color: rgba(215, 84, 77, 0.5) !important;
+  background: rgba(255, 245, 243, 0.96) !important;
+}
+
+.inlineError {
+  color: var(--danger);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
 .choiceGrid {
   display: grid;
   gap: 12px;

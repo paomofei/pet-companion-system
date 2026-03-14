@@ -5,9 +5,19 @@ import { useInitUserMutation } from "../api/hooks";
 import { useUiStore } from "../store/uiStore";
 import { apiRuntime } from "../api/runtime";
 import { useActionGuard } from "../hooks/useActionGuard";
-import { sanitizeTextInput } from "../lib/sanitize";
+import { hasUnsupportedCharacters, sanitizeTextInput } from "../lib/sanitize";
 import { runOfflineCapableAction } from "../offline/useOfflineSync";
 import styles from "./OnboardingPage.module.css";
+
+const validateName = (value: string, label: string) => {
+  if (hasUnsupportedCharacters(value)) {
+    return "不支持输入 < 或 >";
+  }
+  if (!sanitizeTextInput(value)) {
+    return `请输入${label}`;
+  }
+  return "";
+};
 
 export const OnboardingPage = () => {
   const navigate = useNavigate();
@@ -19,6 +29,7 @@ export const OnboardingPage = () => {
   const [petName, setPetName] = useState("");
   const [option, setOption] = useState<0 | 1>(0);
   const [submittingIntent, setSubmittingIntent] = useState(false);
+  const [touched, setTouched] = useState({ nickname: false, petName: false });
 
   const previewBubble = useMemo(() => {
     if (petName.trim()) {
@@ -27,6 +38,9 @@ export const OnboardingPage = () => {
     return "你好呀！我是你的新伙伴，快给我起个名字吧！";
   }, [petName]);
 
+  const nicknameError = touched.nickname ? validateName(nickname, "孩子昵称") : "";
+  const petNameError = touched.petName ? validateName(petName, "宠物昵称") : "";
+
   if (apiRuntime.isInitialized() && !submittingIntent) {
     return <Navigate to="/today?tab=tasks" replace />;
   }
@@ -34,6 +48,14 @@ export const OnboardingPage = () => {
   const submit = async () => {
     const cleanNickname = sanitizeTextInput(nickname);
     const cleanPetName = sanitizeTextInput(petName);
+    const nextNicknameError = validateName(nickname, "孩子昵称");
+    const nextPetNameError = validateName(petName, "宠物昵称");
+    setTouched({ nickname: true, petName: true });
+
+    if (nextNicknameError || nextPetNameError) {
+      return;
+    }
+
     setSubmittingIntent(true);
 
     try {
@@ -93,22 +115,32 @@ export const OnboardingPage = () => {
           <label>
             孩子昵称
             <input
+              className={nicknameError ? styles.inputError : ""}
               value={nickname}
               maxLength={10}
-              onChange={(event) => setNickname(event.target.value)}
+              onChange={(event) => {
+                setTouched((state) => ({ ...state, nickname: true }));
+                setNickname(event.target.value);
+              }}
               placeholder="例如：小明"
               autoComplete="off"
             />
+            {nicknameError ? <span className={styles.inlineError}>{nicknameError}</span> : null}
           </label>
           <label>
             宠物昵称
             <input
+              className={petNameError ? styles.inputError : ""}
               value={petName}
               maxLength={10}
-              onChange={(event) => setPetName(event.target.value)}
+              onChange={(event) => {
+                setTouched((state) => ({ ...state, petName: true }));
+                setPetName(event.target.value);
+              }}
               placeholder="给小猫起个响亮的名字吧"
               autoComplete="off"
             />
+            {petNameError ? <span className={styles.inlineError}>{petNameError}</span> : null}
           </label>
 
           <div className={styles.choiceGrid}>
@@ -133,7 +165,12 @@ export const OnboardingPage = () => {
 
         <div className={styles.actions}>
           <span className={styles.hint}>进入即代表同意《用户协议》与《隐私政策》</span>
-          <button className={styles.primary} type="button" disabled={!nickname.trim() || !petName.trim() || initMutation.isPending} onClick={submit}>
+          <button
+            className={styles.primary}
+            type="button"
+            disabled={!nickname.trim() || !petName.trim() || initMutation.isPending || Boolean(nicknameError) || Boolean(petNameError)}
+            onClick={submit}
+          >
             {initMutation.isPending ? "开启中..." : "开启旅程"}
           </button>
         </div>

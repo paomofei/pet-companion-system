@@ -40,7 +40,7 @@
     "energyBalance": 0,
     "pendingDraw": false,
     "defaultGoals": [          // 仅 onboardingOption=0 时有值
-      { "id": 1, "icon": "📚", "title": "每日好习惯" }
+      { "id": 1, "icon": "🎯", "title": "每日好习惯" }
     ],
     "defaultTasks": [
       { "id": 1, "title": "早起喝一杯水", "rewardEnergy": 10 },
@@ -292,28 +292,30 @@
       "completed": 15, "total": 30, "percentage": 50
     },
     {
-      "id": 2, "icon": "📚", "title": "养成每日阅读好习惯",
+      "id": 2, "icon": "🎯", "title": "养成每日阅读好习惯",
       "completed": 0, "total": 0, "percentage": 0
     }
   ]
 }
 ```
 
-### POST `/goals` — 新增目标
+### POST `/goals` — 新增目标（固定图标）
 
 ```json
 // Request
-{ "icon": "🎯", "title": "期末英语95分" }
+{ "title": "期末英语95分" }
+// `icon` 可省略；V2 起前端不再提供图标选择，服务端固定使用默认目标图标 `🎯`
 
 // Response
 { "code": 0, "data": { "id": 3, "icon": "🎯", "title": "期末英语95分", "completed": 0, "total": 0, "percentage": 0 } }
 ```
 
-### PUT `/goals/:id` — 编辑目标
+### PUT `/goals/:id` — 编辑目标（固定图标）
 
 ```json
 // Request
-{ "icon": "📖", "title": "期末英语98分" }
+{ "title": "期末英语98分" }
+// `icon` 可省略；若传入则服务端忽略并回写系统默认目标图标 `🎯`
 
 // Response: 同 POST 结构
 ```
@@ -342,30 +344,32 @@
 {
   "code": 0,
   "data": [
-    { "id": 1, "icon": "🎮", "title": "周末玩Switch", "weight": 50, "rarity": 1, "status": 0 },
-    { "id": 2, "icon": "🍔", "title": "吃一次麦当劳", "weight": 20, "rarity": 2, "status": 0 },
-    { "id": 3, "icon": "🎢", "title": "全家去游乐园", "weight": 5, "rarity": 3, "status": 0 }
+    { "id": 1, "icon": "🎁", "title": "周末玩Switch", "weight": 50, "rarity": 1, "status": 0 },
+    { "id": 2, "icon": "🎁", "title": "吃一次麦当劳", "weight": 20, "rarity": 2, "status": 0 },
+    { "id": 3, "icon": "🎁", "title": "全家去游乐园", "weight": 5, "rarity": 3, "status": 0 }
   ]
 }
 // rarity: 1=⭐小愿望(w50) 2=⭐⭐中愿望(w20) 3=⭐⭐⭐大愿望(w5)
 ```
 
-### POST `/wishes` — 新增心愿
+### POST `/wishes` — 新增心愿（固定图标）
 
 ```json
 // Request
-{ "icon": "🎮", "title": "周末玩Switch", "rarity": 1 }
+{ "title": "周末玩Switch", "rarity": 1 }
+// `icon` 可省略；V2 起前端不再提供图标选择，服务端固定使用默认心愿图标 `🎁`
 // 后端根据 rarity 映射 weight: 1→50, 2→20, 3→5
 
 // Response
-{ "code": 0, "data": { "id": 4, "icon": "🎮", "title": "周末玩Switch", "weight": 50, "rarity": 1, "status": 0 } }
+{ "code": 0, "data": { "id": 4, "icon": "🎁", "title": "周末玩Switch", "weight": 50, "rarity": 1, "status": 0 } }
 ```
 
-### PUT `/wishes/:id` — 编辑心愿（仅 status=0 可改）
+### PUT `/wishes/:id` — 编辑心愿（仅 status=0 可改，固定图标）
 
 ```json
 // Request
-{ "icon": "🎮", "title": "周末玩Switch 2小时", "rarity": 2 }
+{ "title": "周末玩Switch 2小时", "rarity": 2 }
+// `icon` 可省略；若传入则服务端忽略并回写系统默认心愿图标 `🎁`
 
 // Response: 同 POST 结构
 ```
@@ -389,7 +393,7 @@
   "code": 0,
   "data": {
     "drawnWish": {
-      "id": 2, "icon": "🍔", "title": "吃一次麦当劳",
+      "id": 2, "icon": "🎁", "title": "吃一次麦当劳",
       "rarity": 2, "drawnAt": "2026-03-12T15:30:00Z"
     },
     "pendingDraw": false,    // 抽奖后置 false，🎁变灰
@@ -416,8 +420,8 @@
 {
   "code": 0,
   "data": [
-    { "id": 2, "icon": "🍔", "title": "吃一次麦当劳", "rarity": 2, "drawnAt": "2026-03-12T15:30:00Z" },
-    { "id": 5, "icon": "🎮", "title": "看动画片30分钟", "rarity": 1, "drawnAt": "2026-03-10T18:00:00Z" }
+    { "id": 2, "icon": "🎁", "title": "吃一次麦当劳", "rarity": 2, "drawnAt": "2026-03-12T15:30:00Z" },
+    { "id": 5, "icon": "🎁", "title": "看动画片30分钟", "rarity": 1, "drawnAt": "2026-03-10T18:00:00Z" }
   ]
 }
 ```
@@ -460,17 +464,23 @@
 
 ### GET `/badges` — 勋章列表
 
+`description` 用于成长页勋章墙二级文案展示。
+- 首版下发 `12` 枚 badge，分为 `任务习惯`、`目标成长`、`宠物互动` 三类。
+- `first_feed` 与 `first_wish_claim` 暂不在 V2 首版下发：
+  - `first_feed` 需要服务端区分喂食型互动
+  - `first_wish_claim` 需要独立的愿望领取状态/事件
+
 ```json
 // Response
 {
   "code": 0,
   "data": [
-    { "id": 1, "code": "first_task", "name": "初出茅庐", "icon": "⭐", "category": "坚持",
+    { "id": 1, "code": "first_task", "name": "初出茅庐", "description": "第一次完成任务", "icon": "⭐", "category": "任务习惯",
       "threshold": 1, "unlocked": true, "unlockedAt": "2026-03-06T10:00:00Z", "progress": 1 },
-    { "id": 2, "code": "streak_7", "name": "坚持一周", "icon": "🔥", "category": "坚持",
-      "threshold": 7, "unlocked": true, "unlockedAt": "2026-03-12T09:00:00Z", "progress": 7 },
-    { "id": 3, "code": "streak_21", "name": "持之以恒", "icon": "💪", "category": "坚持",
-      "threshold": 21, "unlocked": false, "unlockedAt": null, "progress": 7 }
+    { "id": 2, "code": "week_completion_80", "name": "本周小明星", "description": "单周完成率达到80%", "icon": "🌟", "category": "任务习惯",
+      "threshold": 80, "unlocked": true, "unlockedAt": "2026-03-12T09:00:00Z", "progress": 80 },
+    { "id": 3, "code": "first_interact", "name": "小手碰碰", "description": "第一次与宠物互动", "icon": "🐾", "category": "宠物互动",
+      "threshold": 1, "unlocked": false, "unlockedAt": null, "progress": 0 }
   ]
 }
 ```

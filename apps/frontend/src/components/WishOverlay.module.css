@@ -1,6 +1,39 @@
 .layout {
   display: grid;
-  gap: 20px;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 18px;
+  max-height: min(72vh, 760px);
+}
+
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(255, 250, 242, 0.98) 72%, rgba(255, 250, 242, 0));
+}
+
+.sections {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+  gap: 18px;
+}
+
+.sectionPane {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-weight: 800;
+}
+
+.scrollArea {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
 }
 
 .grid {
@@ -16,6 +49,7 @@
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.74);
   border: 1px solid rgba(111, 84, 51, 0.1);
+  box-shadow: var(--shadow-subtle), inset 1px 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 .wishIcon {
@@ -35,6 +69,7 @@
   padding: 14px 16px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.66);
+  box-shadow: var(--shadow-subtle), inset 1px 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 .spinning {
@@ -58,6 +93,7 @@
   background: linear-gradient(180deg, #ffe6b5, #f5b04e);
   font-size: 2rem;
   color: #7b4213;
+  box-shadow: var(--shadow-soft);
 }
 
 .emptyState,
@@ -77,6 +113,13 @@
   border-radius: 38px;
   background: linear-gradient(180deg, rgba(255, 228, 171, 0.8), rgba(242, 150, 50, 0.24));
   font-size: 3.4rem;
+  box-shadow: var(--shadow-soft);
+}
+
+@media (max-width: 900px) {
+  .sections {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 720px) {

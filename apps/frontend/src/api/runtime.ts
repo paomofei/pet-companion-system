@@ -35,8 +35,8 @@ export interface ApiRuntime {
   getItems(): Promise<ApiEnvelope<Item[]>>;
   interactPet(itemId: number): Promise<ApiEnvelope<InteractionResponse>>;
   getGoals(): Promise<ApiEnvelope<GoalSummary[]>>;
-  createGoal(payload: { icon: string; title: string }): Promise<ApiEnvelope<GoalSummary>>;
-  updateGoal(id: number, payload: { icon: string; title: string }): Promise<ApiEnvelope<GoalSummary>>;
+  createGoal(payload: { title: string }): Promise<ApiEnvelope<GoalSummary>>;
+  updateGoal(id: number, payload: { title: string }): Promise<ApiEnvelope<GoalSummary>>;
   deleteGoal(id: number): Promise<ApiEnvelope<{ id: number; deleted: boolean; unboundTaskCount: number }>>;
   getTasks(date: string): Promise<ApiEnvelope<TasksByDate>>;
   createTask(payload: {
@@ -59,8 +59,8 @@ export interface ApiRuntime {
   getWeeklyGrowth(): Promise<ApiEnvelope<WeeklyGrowthPoint[]>>;
   getBadges(): Promise<ApiEnvelope<Badge[]>>;
   getWishes(): Promise<ApiEnvelope<Wish[]>>;
-  createWish(payload: { icon: string; title: string; rarity: 1 | 2 | 3 }): Promise<ApiEnvelope<Wish>>;
-  updateWish(id: number, payload: { icon: string; title: string; rarity: 1 | 2 | 3 }): Promise<ApiEnvelope<Wish>>;
+  createWish(payload: { title: string; rarity: 1 | 2 | 3 }): Promise<ApiEnvelope<Wish>>;
+  updateWish(id: number, payload: { title: string; rarity: 1 | 2 | 3 }): Promise<ApiEnvelope<Wish>>;
   drawWish(payload: DrawWishRequest): Promise<ApiEnvelope<DrawResponse>>;
   getWishHistory(): Promise<ApiEnvelope<WishHistoryItem[]>>;
 }

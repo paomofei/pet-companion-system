@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { sanitizeTextInput } from "../lib/sanitize";
+import { hasUnsupportedCharacters, sanitizeTextInput } from "../lib/sanitize";
 import { Modal } from "./Modal";
 import { formatDateTime } from "../lib/date";
 import { Wish, WishHistoryItem } from "../types";
@@ -18,11 +18,21 @@ interface WishOverlayProps {
   onOpenCreate: () => void;
   onCloseDraw: () => void;
   onRetryLoad?: () => void;
-  onCreateWish: (payload: { icon: string; title: string; rarity: 1 | 2 | 3 }) => Promise<void>;
-  onUpdateWish: (id: number, payload: { icon: string; title: string; rarity: 1 | 2 | 3 }) => Promise<void>;
+  onCreateWish: (payload: { title: string; rarity: 1 | 2 | 3 }) => Promise<void>;
+  onUpdateWish: (id: number, payload: { title: string; rarity: 1 | 2 | 3 }) => Promise<void>;
 }
 
-const initialWish = { icon: "🎁", title: "", rarity: 1 as 1 | 2 | 3 };
+const initialWish = { title: "", rarity: 1 as 1 | 2 | 3 };
+
+const validateWishTitle = (value: string) => {
+  if (hasUnsupportedCharacters(value)) {
+    return "不支持输入 < 或 >";
+  }
+  if (!sanitizeTextInput(value)) {
+    return "请输入心愿内容";
+  }
+  return "";
+};
 
 export const WishOverlay = ({
   open,
@@ -41,6 +51,7 @@ export const WishOverlay = ({
   const [editing, setEditing] = useState<Wish | null>(null);
   const [formState, setFormState] = useState(initialWish);
   const [saving, setSaving] = useState(false);
+  const [touched, setTouched] = useState(false);
 
   useEffect(() => {
     if (open && wishes.length === 0) {
@@ -48,21 +59,27 @@ export const WishOverlay = ({
     }
   }, [open, wishes.length]);
 
-  const formOpen = open && (editing !== null || false);
-
+  const formOpen = open && editing !== null;
   const spinDeck = useMemo(() => ["🎁", "⭐", "🍭"], []);
+  const titleError = touched ? validateWishTitle(formState.title) : "";
 
   const openCreate = () => {
     onOpenCreate();
     setEditing({ id: -1, icon: "🎁", title: "", weight: 50, rarity: 1, status: 0 });
     setFormState(initialWish);
+    setTouched(false);
   };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    const nextError = validateWishTitle(formState.title);
+    setTouched(true);
+    if (nextError) {
+      return;
+    }
+
     setSaving(true);
     const cleanPayload = {
-      icon: sanitizeTextInput(formState.icon) || "🎁",
       title: sanitizeTextInput(formState.title),
       rarity: formState.rarity
     };
@@ -74,6 +91,7 @@ export const WishOverlay = ({
       }
       setEditing(null);
       setFormState(initialWish);
+      setTouched(false);
     } finally {
       setSaving(false);
     }
@@ -81,16 +99,18 @@ export const WishOverlay = ({
 
   return (
     <>
-      <Modal open={open} title="🎁 我的许愿池" onClose={onClose} width="860px">
+      <Modal open={open} title="🎁 我的许愿池" onClose={onClose} width="920px">
         <div className={styles.layout}>
-          <div className={pageStyles.sectionHeader}>
-            <div>
-              <h3>心愿单 ({wishes.length})</h3>
-              <p>这里仅管理心愿，不触发抽奖。</p>
+          <div className={styles.stickyHeader}>
+            <div className={pageStyles.sectionHeader}>
+              <div>
+                <h3>心愿单 ({wishes.length})</h3>
+                <p>这里仅管理心愿，不触发抽奖；心愿图标固定为系统礼物盒。</p>
+              </div>
+              <button className={pageStyles.primaryButton} type="button" onClick={openCreate}>
+                + 许个新愿望
+              </button>
             </div>
-            <button className={pageStyles.primaryButton} type="button" onClick={openCreate}>
-              + 许个新愿望
-            </button>
           </div>
 
           {loadError ? (
@@ -109,73 +129,100 @@ export const WishOverlay = ({
             </div>
           ) : null}
 
-          <div className={styles.grid}>
-            {!loadError && wishes.length ? (
-              wishes.map((wish) => (
-                <article key={wish.id} className={styles.wishCard}>
-                  <span className={styles.wishIcon}>{wish.icon}</span>
-                  <strong>{wish.title}</strong>
-                  <small>{"⭐".repeat(wish.rarity)} · 权重 {wish.weight}</small>
-                  <button
-                    className={pageStyles.secondaryButton}
-                    type="button"
-                    onClick={() => {
-                      setEditing(wish);
-                      setFormState({ icon: wish.icon, title: wish.title, rarity: wish.rarity });
-                    }}
-                  >
-                    编辑
-                  </button>
-                </article>
-              ))
-            ) : !loadError ? (
-              <div className={pageStyles.emptyCard}>还没有许愿哦，先许几个愿望吧！</div>
-            ) : null}
-          </div>
-
-          <div>
-            <div className={pageStyles.subHeader}>
-              <h3>中奖记录</h3>
-            </div>
-            <div className={styles.historyList}>
-              {!loadError && history.length ? (
-                history.map((item) => (
-                  <div key={`${item.id}-${item.drawnAt}`} className={styles.historyItem}>
-                    <span>
-                      {item.icon} {item.title}
-                    </span>
-                    <small>{formatDateTime(item.drawnAt)}</small>
+          <div className={styles.sections}>
+            <section className={styles.sectionPane}>
+              <div className={styles.sectionTitle}>待抽心愿</div>
+              <div className={styles.scrollArea}>
+                {!loadError && wishes.length ? (
+                  <div className={styles.grid}>
+                    {wishes.map((wish) => (
+                      <article key={wish.id} className={styles.wishCard}>
+                        <span className={styles.wishIcon}>{wish.icon}</span>
+                        <strong>{wish.title}</strong>
+                        <small>{"⭐".repeat(wish.rarity)} · 权重 {wish.weight}</small>
+                        <button
+                          className={pageStyles.secondaryButton}
+                          type="button"
+                          onClick={() => {
+                            setEditing(wish);
+                            setFormState({ title: wish.title, rarity: wish.rarity });
+                            setTouched(false);
+                          }}
+                        >
+                          编辑
+                        </button>
+                      </article>
+                    ))}
                   </div>
-                ))
-              ) : !loadError ? (
-                <div className={pageStyles.emptyCard}>抽中的心愿会在这里留下记录。</div>
-              ) : null}
-            </div>
+                ) : !loadError ? (
+                  <div className={pageStyles.emptyStateCard}>
+                    <div className={pageStyles.emptyArtwork}>🎁</div>
+                    <strong>还没有许愿</strong>
+                    <p>先放一个小愿望进许愿池，升级后才能抽到惊喜。</p>
+                    <button className={pageStyles.primaryButton} type="button" onClick={openCreate}>
+                      去许个愿望
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            </section>
+
+            <section className={styles.sectionPane}>
+              <div className={styles.sectionTitle}>中奖记录</div>
+              <div className={styles.scrollArea}>
+                {!loadError && history.length ? (
+                  <div className={styles.historyList}>
+                    {history.map((item) => (
+                      <div key={`${item.id}-${item.drawnAt}`} className={styles.historyItem}>
+                        <span>
+                          {item.icon} {item.title}
+                        </span>
+                        <small>{formatDateTime(item.drawnAt)}</small>
+                      </div>
+                    ))}
+                  </div>
+                ) : !loadError ? (
+                  <div className={pageStyles.emptyStateCard}>
+                    <div className={pageStyles.emptyArtwork}>🏷️</div>
+                    <strong>还没有中奖记录</strong>
+                    <p>等礼物盒点亮并抽到愿望后，这里会自动留下记录。</p>
+                    <button className={pageStyles.secondaryButton} type="button" onClick={onClose}>
+                      先去做任务
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            </section>
           </div>
         </div>
       </Modal>
 
       <Modal open={formOpen} title={editing?.id === -1 ? "许个新愿望" : "编辑心愿"} onClose={() => setEditing(null)} width="520px">
         <form className={pageStyles.formGrid} onSubmit={submit}>
-          <label>
-            心愿图标
-            <input
-              value={formState.icon}
-              maxLength={2}
-              onChange={(event) => setFormState((state) => ({ ...state, icon: event.target.value }))}
-              autoComplete="off"
-            />
-          </label>
+          <div className={pageStyles.fixedIconField}>
+            <span className={pageStyles.fieldLabel}>心愿图标</span>
+            <div className={pageStyles.fixedIconPreview}>
+              <span className={pageStyles.fixedIconEmoji}>🎁</span>
+              <span>本轮固定为系统心愿图标</span>
+            </div>
+          </div>
+
           <label>
             想要什么
             <input
+              className={titleError ? pageStyles.inputError : ""}
               value={formState.title}
               maxLength={20}
-              onChange={(event) => setFormState((state) => ({ ...state, title: event.target.value }))}
+              onChange={(event) => {
+                setTouched(true);
+                setFormState((state) => ({ ...state, title: event.target.value }));
+              }}
               placeholder="例如：周末玩 Switch"
               autoComplete="off"
             />
+            {titleError ? <span className={pageStyles.inlineError}>{titleError}</span> : null}
           </label>
+
           <div>
             <span className={pageStyles.fieldLabel}>稀有度</span>
             <div className={pageStyles.choiceRow}>
@@ -191,11 +238,12 @@ export const WishOverlay = ({
               ))}
             </div>
           </div>
+
           <div className={pageStyles.modalActions}>
             <button className={pageStyles.secondaryButton} type="button" onClick={() => setEditing(null)}>
               取消
             </button>
-            <button className={pageStyles.primaryButton} type="submit" disabled={saving || formState.title.trim().length === 0}>
+            <button className={pageStyles.primaryButton} type="submit" disabled={saving || Boolean(titleError)}>
               {saving ? "保存中..." : editing?.id === -1 ? "放进许愿池" : "保存修改"}
             </button>
           </div>
@@ -261,7 +309,7 @@ export const WishOverlay = ({
                   openCreate();
                 }}
               >
-                + 再许个新愿望
+                再许个新愿望
               </button>
               <button className={pageStyles.primaryButton} type="button" onClick={onCloseDraw}>
                 好的

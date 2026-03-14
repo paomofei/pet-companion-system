@@ -1,10 +1,47 @@
-export const getTodayIso = () => new Date().toISOString().slice(0, 10);
+const padDatePart = (value: number) => String(value).padStart(2, "0");
+
+const parseIsoDate = (dateString: string) => {
+  const [year, month, day] = dateString.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
+
+const toIsoDate = (date: Date) =>
+  `${date.getFullYear()}-${padDatePart(date.getMonth() + 1)}-${padDatePart(date.getDate())}`;
+
+export const getTodayIso = () => toIsoDate(new Date());
+
+const WEEKDAY_LABELS = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"] as const;
 
 export const addDays = (dateString: string, diff: number) => {
-  const date = new Date(`${dateString}T00:00:00`);
+  const date = parseIsoDate(dateString);
   date.setDate(date.getDate() + diff);
-  return date.toISOString().slice(0, 10);
+  return toIsoDate(date);
 };
+
+export const getWeekDates = (dateString: string) => {
+  const date = parseIsoDate(dateString);
+  const weekday = date.getDay();
+  const mondayOffset = weekday === 0 ? -6 : 1 - weekday;
+  const monday = addDays(dateString, mondayOffset);
+
+  return Array.from({ length: 7 }, (_, index) => addDays(monday, index));
+};
+
+export const formatWeekdayLabel = (dateString: string) =>
+  WEEKDAY_LABELS[parseIsoDate(dateString).getDay()];
+
+export const formatMonthDay = (dateString: string) => {
+  const date = parseIsoDate(dateString);
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+};
+
+export const formatFullDate = (dateString: string) =>
+  new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "long"
+  }).format(parseIsoDate(dateString));
 
 export const formatDateLabel = (dateString: string) => {
   const today = getTodayIso();
@@ -17,7 +54,7 @@ export const formatDateLabel = (dateString: string) => {
   if (dateString === addDays(today, 1)) {
     return "明天";
   }
-  const date = new Date(`${dateString}T00:00:00`);
+  const date = parseIsoDate(dateString);
   return `${date.getMonth() + 1}月${date.getDate()}日`;
 };
 
