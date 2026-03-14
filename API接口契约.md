@@ -143,7 +143,7 @@
     "pending": [
       {
         "id": 5, "title": "背诵英语课文", "status": 0,
-        "rewardEnergy": 20, "repeatType": 1,
+        "rewardEnergy": 20, "repeatType": 4, "repeatWeekdays": [1, 3, 5],
         "goalId": 1, "goalIcon": "🎯", "goalTitle": "期末冲刺",
         "isDelayedCopy": false
       }
@@ -151,7 +151,7 @@
     "completed": [
       {
         "id": 3, "title": "完成数学练习册", "status": 1,
-        "rewardEnergy": 20, "completedAt": "2026-03-12T09:30:00Z",
+        "rewardEnergy": 20, "repeatType": 4, "repeatWeekdays": [1, 3, 5], "completedAt": "2026-03-12T09:30:00Z",
         "goalId": 1, "goalIcon": "🎯", "goalTitle": "期末冲刺",
         "isDelayedCopy": false
       }
@@ -168,8 +168,9 @@
   "title": "跳绳500下",
   "rewardEnergy": 15,
   "goalId": null,           // 可选，null=散装任务
-  "repeatType": 0,          // 0=仅一次 1=每天 2=工作日 3=周末
-  "targetDate": "2026-03-12"
+  "repeatType": 4,          // 0=仅一次 1=每天 2=工作日 3=周末 4=按周指定
+  "targetDate": "2026-03-18", // repeatType=0 时表示执行日期；repeatType>0 时表示开始执行日期
+  "repeatWeekdays": [3]     // 仅 repeatType=4 必填；1=周一 ... 7=周日
 }
 
 // Response
@@ -177,12 +178,19 @@
   "code": 0,
   "data": {
     "id": 8, "title": "跳绳500下", "status": 0,
-    "rewardEnergy": 15, "repeatType": 0,
-    "targetDate": "2026-03-12", "goalId": null,
-    "templateId": null       // repeatType>0 时返回模板ID
+    "rewardEnergy": 15, "repeatType": 4,
+    "targetDate": "2026-03-18", "repeatWeekdays": [3], "goalId": null,
+    "templateId": 12       // repeatType>0 时返回模板ID
   }
 }
 ```
+
+**校验规则**：
+- `repeatType=4` 时，`repeatWeekdays` 必填，且去重后至少包含 1 个 `1-7` 之间的整数。
+- `repeatType=0|1|2|3` 时，`repeatWeekdays` 省略或返回空数组。
+- `repeatType=2`（工作日）时，`targetDate` 不能落在周六/周日。
+- `repeatType=3`（周末）时，`targetDate` 只能落在周六/周日。
+- `repeatType=4`（按周指定）时，`targetDate` 的星期必须包含在 `repeatWeekdays` 中。
 
 ### PUT `/tasks/:id` — 编辑任务
 
@@ -197,6 +205,10 @@
 
 // Response: 同 POST 结构
 ```
+
+**本轮约束**：
+- `PUT /tasks/:id` 暂不支持修改 `repeatType`、`targetDate`、`repeatWeekdays`。
+- 若后续需要支持“修改未来重复规则”，单独扩接口。
 
 ### DELETE `/tasks/:id` — 删除任务（软删除）
 
