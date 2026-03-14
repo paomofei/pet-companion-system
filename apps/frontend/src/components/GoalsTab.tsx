@@ -156,13 +156,6 @@ export const GoalsTab = ({
 
       <Modal open={Boolean(editing)} title={editing?.id === -1 ? "创建新目标" : "编辑目标"} onClose={closeModal} width="520px">
         <form className={styles.formGrid} onSubmit={submit}>
-          <div className={styles.fixedIconField}>
-            <span className={styles.fieldLabel}>目标图标</span>
-            <div className={styles.fixedIconPreview}>
-              <span className={styles.fixedIconEmoji}>🎯</span>
-              <span>本轮固定为系统目标图标</span>
-            </div>
-          </div>
           <label>
             目标名称
             <input

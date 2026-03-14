@@ -105,7 +105,7 @@ export const WishOverlay = ({
             <div className={pageStyles.sectionHeader}>
               <div>
                 <h3>心愿单 ({wishes.length})</h3>
-                <p>这里仅管理心愿，不触发抽奖；心愿图标固定为系统礼物盒。</p>
+                <p>这里仅管理心愿，不触发抽奖。</p>
               </div>
               <button className={pageStyles.primaryButton} type="button" onClick={openCreate}>
                 + 许个新愿望
@@ -199,14 +199,6 @@ export const WishOverlay = ({
 
       <Modal open={formOpen} title={editing?.id === -1 ? "许个新愿望" : "编辑心愿"} onClose={() => setEditing(null)} width="520px">
         <form className={pageStyles.formGrid} onSubmit={submit}>
-          <div className={pageStyles.fixedIconField}>
-            <span className={pageStyles.fieldLabel}>心愿图标</span>
-            <div className={pageStyles.fixedIconPreview}>
-              <span className={pageStyles.fixedIconEmoji}>🎁</span>
-              <span>本轮固定为系统心愿图标</span>
-            </div>
-          </div>
-
           <label>
             想要什么
             <input

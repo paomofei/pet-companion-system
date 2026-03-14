@@ -20,7 +20,7 @@
 .footer {
   border: 1px solid rgba(130, 97, 54, 0.12);
   box-shadow: var(--shadow-subtle), inset 1px 1px 0 rgba(255, 255, 255, 0.74);
-  background: rgba(255, 255, 255, 0.58);
+  background: rgba(255, 255, 255, 0.84);
 }
 
 .dateCard {
@@ -28,6 +28,8 @@
   gap: 4px;
   padding: 14px 18px;
   border-radius: 22px;
+  position: relative;
+  z-index: 2;
 }
 
 .dateLabel {
@@ -37,15 +39,29 @@
 
 .header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   padding: 16px 18px;
   border-radius: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.headerText {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
 }
 
 .nickname {
   font-weight: 800;
+}
+
+.statusText {
+  display: block;
+  line-height: 1.45;
+  color: var(--ink-soft);
 }
 
 .energy {
@@ -66,34 +82,15 @@
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 18px;
+  gap: 14px;
+  padding: 14px 0 20px;
   min-height: 0;
-}
-
-.bubble {
-  position: relative;
-  width: min(100%, 320px);
-  padding: 14px 16px;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.88);
-  color: var(--ink-soft);
-  box-shadow: var(--shadow-subtle), inset 1px 1px 0 rgba(255, 255, 255, 0.86);
-}
-
-.bubble::after {
-  content: "";
-  position: absolute;
-  left: 36px;
-  bottom: -10px;
-  width: 18px;
-  height: 18px;
-  background: rgba(255, 255, 255, 0.88);
-  transform: rotate(45deg);
+  z-index: 1;
 }
 
 .petOrb {
   position: relative;
-  width: min(100%, 320px);
+  width: min(100%, 300px, 34vh);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -104,6 +101,13 @@
     radial-gradient(circle at 28% 28%, rgba(255, 255, 255, 0.92), transparent 26%),
     linear-gradient(180deg, rgba(249, 188, 101, 0.3), rgba(239, 146, 60, 0.22));
   box-shadow: var(--shadow-soft), inset 1px 1px 0 rgba(255, 255, 255, 0.72);
+  transition: box-shadow 180ms ease, transform 180ms ease;
+}
+
+.petOrbHappy {
+  box-shadow:
+    0 20px 38px rgba(239, 146, 60, 0.24),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.82);
 }
 
 .petFace {
@@ -111,14 +115,47 @@
   filter: drop-shadow(0 10px 18px rgba(183, 108, 34, 0.22));
 }
 
+.reactionBurst {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+}
+
+.reactionEmoji {
+  position: absolute;
+  font-size: 1.6rem;
+  filter: drop-shadow(0 8px 14px rgba(228, 120, 50, 0.2));
+}
+
+.reactionEmojiLeft {
+  top: 28%;
+  left: 18%;
+}
+
+.reactionEmojiCenter {
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.reactionEmojiRight {
+  top: 30%;
+  right: 18%;
+}
+
 .tapHint {
   position: absolute;
-  bottom: 14px;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  max-width: calc(100% - 40px);
   padding: 6px 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.74);
   color: var(--ink-soft);
   font-size: 0.82rem;
+  white-space: nowrap;
+  box-shadow: var(--shadow-subtle);
 }
 
 .petName {
@@ -139,6 +176,8 @@
   padding: 18px;
   border-radius: 28px;
   backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 2;
 }
 
 .xpRow {
@@ -282,8 +321,7 @@
   }
 
   .header {
-    flex-direction: column;
-    align-items: stretch;
+    gap: 10px;
   }
 
   .xpRow {
@@ -298,5 +336,19 @@
 
   .items {
     grid-auto-columns: minmax(108px, 1fr);
+  }
+
+  .statusText {
+    font-size: 0.92rem;
+  }
+
+  .petOrb {
+    width: min(100%, 280px, 40vh);
+  }
+
+  .tapHint {
+    bottom: 16px;
+    max-width: calc(100% - 32px);
+    font-size: 0.78rem;
   }
 }

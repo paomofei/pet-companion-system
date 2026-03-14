@@ -62,6 +62,7 @@ export const TodayPage = () => {
   const isOnline = useNetworkStore((state) => state.isOnline);
 
   const [busyItemId, setBusyItemId] = useState<number | null>(null);
+  const [interactionTick, setInteractionTick] = useState(0);
   const guardAction = useActionGuard();
   const currentDateLabel = useMemo(() => formatFullDate(getTodayIso()), []);
 
@@ -217,6 +218,7 @@ export const TodayPage = () => {
           ? "升级啦！点击🎁看看有什么惊喜！"
           : `谢谢你，我获得了 ${response.data.interaction.xpGained} XP！`
       );
+      setInteractionTick((value) => value + 1);
       addToast(`-${response.data.interaction.energyCost}⚡ / +${response.data.interaction.xpGained} XP`, "success");
     } catch (error) {
       handleError(error);
@@ -537,6 +539,7 @@ export const TodayPage = () => {
           items={itemsQuery.data ?? []}
           bubble={bubble}
           currentDateLabel={currentDateLabel}
+          interactionTick={interactionTick}
           isBusy={interactMutation.isPending}
           busyItemId={busyItemId}
           onInteract={handleInteract}

@@ -42,6 +42,7 @@ const emptyTask = {
   title: "",
   goalId: "",
   repeatType: "0",
+  targetDate: "",
   rewardMode: "10",
   customReward: "10"
 };
@@ -64,6 +65,25 @@ const validateCustomReward = (value: string) => {
   return "";
 };
 
+const validateTargetDate = (targetDate: string, repeatType: string) => {
+  if (!targetDate) {
+    return "请选择执行日期";
+  }
+
+  const weekdayLabel = formatWeekdayLabel(targetDate);
+  const isWeekend = weekdayLabel === "周六" || weekdayLabel === "周日";
+
+  if (repeatType === "2" && isWeekend) {
+    return "工作日任务不能选择周末日期";
+  }
+
+  if (repeatType === "3" && !isWeekend) {
+    return "周末任务只能选择周六或周日";
+  }
+
+  return "";
+};
+
 export const TasksTab = ({
   date,
   goals,
@@ -81,7 +101,7 @@ export const TasksTab = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formState, setFormState] = useState(emptyTask);
   const [submitting, setSubmitting] = useState(false);
-  const [touched, setTouched] = useState({ title: false, customReward: false });
+  const [touched, setTouched] = useState({ title: false, customReward: false, targetDate: false });
 
   const isToday = date === getTodayIso();
   const weekDates = useMemo(() => getWeekDates(date), [date]);
@@ -89,6 +109,7 @@ export const TasksTab = ({
   const titleError = touched.title ? validateTitle(formState.title) : "";
   const customRewardError =
     formState.rewardMode === "custom" && touched.customReward ? validateCustomReward(formState.customReward) : "";
+  const targetDateError = !editingTask && touched.targetDate ? validateTargetDate(formState.targetDate, formState.repeatType) : "";
 
   const mergedTasks = useMemo(
     () => [...(tasksData?.pending ?? []), ...(tasksData?.completed ?? [])],
@@ -96,8 +117,8 @@ export const TasksTab = ({
   );
 
   const resetForm = () => {
-    setTouched({ title: false, customReward: false });
-    setFormState(emptyTask);
+    setTouched({ title: false, customReward: false, targetDate: false });
+    setFormState({ ...emptyTask, targetDate: date });
   };
 
   const openCreate = () => {
@@ -108,11 +129,12 @@ export const TasksTab = ({
 
   const openEdit = (task: TaskSummary) => {
     setEditingTask(task);
-    setTouched({ title: false, customReward: false });
+    setTouched({ title: false, customReward: false, targetDate: false });
     setFormState({
       title: task.title,
       goalId: task.goalId ? String(task.goalId) : "",
       repeatType: String(task.repeatType),
+      targetDate: task.targetDate ?? date,
       rewardMode: rewardPresets.includes(task.rewardEnergy) ? String(task.rewardEnergy) : "custom",
       customReward: String(task.rewardEnergy)
     });
@@ -130,9 +152,10 @@ export const TasksTab = ({
 
     const nextTitleError = validateTitle(formState.title);
     const nextCustomRewardError = formState.rewardMode === "custom" ? validateCustomReward(formState.customReward) : "";
-    setTouched({ title: true, customReward: formState.rewardMode === "custom" });
+    const nextTargetDateError = editingTask ? "" : validateTargetDate(formState.targetDate, formState.repeatType);
+    setTouched({ title: true, customReward: formState.rewardMode === "custom", targetDate: !editingTask });
 
-    if (nextTitleError || nextCustomRewardError) {
+    if (nextTitleError || nextCustomRewardError || nextTargetDateError) {
       return;
     }
 
@@ -155,7 +178,7 @@ export const TasksTab = ({
           rewardEnergy,
           goalId: formState.goalId ? Number(formState.goalId) : null,
           repeatType: Number(formState.repeatType) as 0 | 1 | 2 | 3,
-          targetDate: date
+          targetDate: formState.targetDate
         });
       }
       closeModal();
@@ -350,25 +373,48 @@ export const TasksTab = ({
           ) : null}
 
           {!editingTask ? (
-            <label>
-              重复频次
-              <select
-                value={formState.repeatType}
-                onChange={(event) => setFormState((state) => ({ ...state, repeatType: event.target.value }))}
-              >
-                <option value="0">仅一次</option>
-                <option value="1">每天</option>
-                <option value="2">工作日</option>
-                <option value="3">周末</option>
-              </select>
-            </label>
+            <>
+              <label>
+                重复频次
+                <select
+                  value={formState.repeatType}
+                  onChange={(event) => {
+                    setTouched((state) => ({ ...state, targetDate: true }));
+                    setFormState((state) => ({ ...state, repeatType: event.target.value }));
+                  }}
+                >
+                  <option value="0">仅一次</option>
+                  <option value="1">每天</option>
+                  <option value="2">工作日</option>
+                  <option value="3">周末</option>
+                </select>
+              </label>
+
+              <label>
+                {formState.repeatType === "0" ? "指定日期" : "开始执行日期"}
+                <input
+                  className={targetDateError ? styles.inputError : ""}
+                  type="date"
+                  value={formState.targetDate}
+                  onChange={(event) => {
+                    setTouched((state) => ({ ...state, targetDate: true }));
+                    setFormState((state) => ({ ...state, targetDate: event.target.value }));
+                  }}
+                />
+                {targetDateError ? <span className={styles.inlineError}>{targetDateError}</span> : null}
+              </label>
+            </>
           ) : null}
 
           <div className={styles.modalActions}>
             <button className={styles.secondaryButton} type="button" onClick={closeModal}>
               取消
             </button>
-            <button className={styles.primaryButton} type="submit" disabled={submitting || Boolean(titleError) || Boolean(customRewardError)}>
+            <button
+              className={styles.primaryButton}
+              type="submit"
+              disabled={submitting || Boolean(titleError) || Boolean(customRewardError) || Boolean(targetDateError)}
+            >
               {submitting ? "保存中..." : "保存任务"}
             </button>
           </div>
