@@ -1,0 +1,62 @@
+{
+  "name": "pet-sys",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20 <23"
+  },
+  "scripts": {
+    "env:check-node": "node scripts/check-node-version.mjs",
+    "postinstall": "prisma generate",
+    "build": "tsc -p tsconfig.build.json",
+    "vercel-build": "npm run prisma:generate && npm run build",
+    "start": "node dist/main.js",
+    "start:dev": "ts-node -r tsconfig-paths/register src/main.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --runInBand",
+    "check:fast": "npm run lint && npm run typecheck",
+    "check:full": "bash scripts/mandatory-verification.sh full",
+    "smoke:api": "node scripts/smoke-api.mjs",
+    "db:explain:indexes": "node scripts/explain-indexes.mjs",
+    "prisma:generate": "prisma generate",
+    "prisma:seed": "ts-node prisma/seed.ts"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.16",
+    "@nestjs/config": "^4.0.3",
+    "@nestjs/core": "^11.1.16",
+    "@nestjs/platform-express": "^11.1.16",
+    "@nestjs/swagger": "^11.2.6",
+    "@prisma/adapter-pg": "^6.16.0",
+    "@prisma/client": "^6.16.0",
+    "@vercel/functions": "^3.4.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.4",
+    "pg": "^8.20.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@nestjs/testing": "^11.1.16",
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.5.0",
+    "@types/pg": "^8.18.0",
+    "@types/supertest": "^7.2.0",
+    "eslint": "^10.0.3",
+    "jest": "^30.3.0",
+    "prisma": "^6.16.0",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.0"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
+}

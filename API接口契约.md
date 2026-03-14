@@ -6,15 +6,21 @@
 > - Base URL: `/api`
 > - 统一响应格式：`{ code: 0, message: "ok", data: {...} }`
 > - 错误响应：`{ code: 40001, message: "参数校验失败", data: null }`
-> - 鉴权：Header `X-Device-Id`（V1 设备号静默注册）
+> - 鉴权：Header `X-Device-Id`（V1 设备号静默注册；客户端首次安装生成并本地持久化的 UUID，不是真实硬件号）
 > - 时间格式：ISO 8601（`2026-03-12T10:30:00Z`）
 > - 日期格式：`YYYY-MM-DD`
+> - V1 身份边界：一个安装实例 = 一个 `X-Device-Id` = 一个用户；暂不支持换机恢复或多设备登录
 
 ---
 
 ## 1. 用户模块
 
 ### POST `/users/init` — 初始化（引导页提交）
+
+**行为约定**：
+- 后端按 `X-Device-Id` 查询 `users.device_id`。
+- 若当前 `X-Device-Id` 尚未绑定用户：创建 `user + pet + 默认数据`，并完成绑定。
+- 若当前 `X-Device-Id` 已绑定用户：直接返回已绑定用户当前数据，`code` 仍为 `0`，不重复创建。
 
 ```json
 // Request
@@ -46,6 +52,10 @@
 ```
 
 ### GET `/users/me` — 当前用户全量信息
+
+**行为约定**：
+- 后端按 `X-Device-Id` 查询 `users.device_id`。
+- 若当前 `X-Device-Id` 未绑定用户：返回 `{ "code": 40002, "message": "用户未初始化", "data": null }`，前端跳转 `/onboarding`。
 
 ```json
 // Response
@@ -360,10 +370,19 @@
 // Response: 同 POST 结构
 ```
 
+### DELETE `/wishes/:id` — 删除心愿（仅 status=0 可删）
+
+```json
+// Response
+{ "code": 0, "data": { "id": 4, "deleted": true } }
+```
+
 ### POST `/wishes/draw` — 🎰 抽奖 ⭐
 
 ```json
-// Request: 无参数（后端从 pending_draws 扣除）
+// Request
+{ "clientRequestId": "draw-6f1d7d2f-8f3a-4b3d-9ef0-2f6df0d2c123" }
+// clientRequestId 由前端在点击金色🎁时生成；超时重试时必须沿用同一个值
 
 // Response（成功）
 {
@@ -384,6 +403,11 @@
 // Response（失败：奖池为空）
 { "code": 40006, "message": "奖池为空，先许几个愿望吧", "data": null }
 ```
+
+**幂等约定**：
+- 后端按 `userId + clientRequestId` 做幂等校验。
+- 若同一个 `clientRequestId` 重复提交，且首次请求已成功抽奖，则返回第一次抽奖的同一结果，`code` 仍为 `0`。
+- 前端请求超时后，可使用同一个 `clientRequestId` 自动重试 1 次。
 
 ### GET `/wishes/history` — 中奖记录
 

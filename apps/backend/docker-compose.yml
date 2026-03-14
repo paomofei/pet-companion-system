@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: pet_sys
+      POSTGRES_USER: pet_sys
+      POSTGRES_PASSWORD: pet_sys
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pet_sys -d pet_sys"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      LOG_LEVELS: log,warn,error
+      DATABASE_URL: postgresql://pet_sys:pet_sys@postgres:5432/pet_sys?schema=public
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  seed:
+    build:
+      context: .
+    profiles: ["tools"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://pet_sys:pet_sys@postgres:5432/pet_sys?schema=public
+    command: ["sh", "-c", "npx prisma migrate deploy && npm run prisma:seed"]
+
+volumes:
+  postgres-data:

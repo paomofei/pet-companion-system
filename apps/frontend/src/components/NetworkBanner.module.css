@@ -1,0 +1,48 @@
+.banner {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.offline {
+  background: rgba(185, 84, 64, 0.96);
+}
+
+.syncing {
+  background: rgba(76, 123, 168, 0.96);
+}
+
+.pending {
+  background: rgba(228, 120, 50, 0.96);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.actionButton {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #7a3d11;
+  font-weight: 800;
+}
+
+.actionButton:disabled {
+  opacity: 0.7;
+}
+
+.errorText {
+  font-size: 0.86rem;
+}

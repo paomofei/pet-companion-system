@@ -1,0 +1,30 @@
+.stack {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  min-width: 240px;
+  max-width: 360px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  color: #fff;
+  box-shadow: 0 16px 30px rgba(27, 19, 14, 0.18);
+}
+
+.info {
+  background: rgba(65, 77, 103, 0.92);
+}
+
+.success {
+  background: rgba(52, 139, 101, 0.94);
+}
+
+.danger {
+  background: rgba(185, 74, 64, 0.94);
+}

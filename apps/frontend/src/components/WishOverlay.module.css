@@ -1,0 +1,107 @@
+.layout {
+  display: grid;
+  gap: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.wishCard {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(111, 84, 51, 0.1);
+}
+
+.wishIcon {
+  font-size: 1.8rem;
+}
+
+.historyList {
+  display: grid;
+  gap: 10px;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.spinning {
+  display: grid;
+  place-items: center;
+  gap: 20px;
+  padding: 34px 0 16px;
+}
+
+.spinningWheel {
+  display: flex;
+  gap: 14px;
+}
+
+.spinCard {
+  width: 92px;
+  height: 120px;
+  display: grid;
+  place-items: center;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #ffe6b5, #f5b04e);
+  font-size: 2rem;
+  color: #7b4213;
+}
+
+.emptyState,
+.resultState {
+  display: grid;
+  gap: 16px;
+  place-items: center;
+  text-align: center;
+  padding: 16px 0 6px;
+}
+
+.resultHero {
+  width: 160px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 38px;
+  background: linear-gradient(180deg, rgba(255, 228, 171, 0.8), rgba(242, 150, 50, 0.24));
+  font-size: 3.4rem;
+}
+
+@media (max-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .historyItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .spinningWheel {
+    gap: 10px;
+  }
+
+  .spinCard {
+    width: 72px;
+    height: 96px;
+    border-radius: 18px;
+    font-size: 1.6rem;
+  }
+
+  .resultHero {
+    width: 120px;
+    font-size: 2.8rem;
+  }
+}

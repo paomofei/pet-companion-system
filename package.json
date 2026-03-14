@@ -1,0 +1,33 @@
+{
+  "name": "pet-sys",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/frontend",
+    "apps/backend"
+  ],
+  "engines": {
+    "node": ">=20 <23"
+  },
+  "scripts": {
+    "env:check-node": "node scripts/check-node-version.mjs",
+    "prelint": "npm run env:check-node",
+    "pretypecheck": "npm run env:check-node",
+    "pretest": "npm run env:check-node",
+    "prebuild": "npm run env:check-node",
+    "dev:frontend": "npm run dev --workspace apps/frontend",
+    "dev:backend": "npm run start:dev --workspace apps/backend",
+    "build:frontend": "npm run build --workspace apps/frontend",
+    "build:backend": "npm run build --workspace apps/backend",
+    "lint:backend": "npm run lint --workspace apps/backend",
+    "typecheck:frontend": "npm run typecheck --workspace apps/frontend",
+    "typecheck:backend": "npm run typecheck --workspace apps/backend",
+    "test:backend": "npm run test --workspace apps/backend",
+    "lint": "npm run lint:backend",
+    "typecheck": "npm run typecheck:frontend && npm run typecheck:backend",
+    "test": "npm run test:backend",
+    "build": "npm run build:frontend && npm run build:backend",
+    "check:fast": "bash scripts/mandatory-verification.sh fast",
+    "check:full": "bash scripts/mandatory-verification.sh full"
+  }
+}

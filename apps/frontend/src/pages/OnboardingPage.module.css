@@ -1,0 +1,164 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(360px, 1.05fr);
+  gap: 24px;
+  padding: 32px;
+}
+
+.hero,
+.formCard {
+  border-radius: 32px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.hero {
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(249, 193, 74, 0.38), transparent 24%),
+    linear-gradient(180deg, rgba(255, 246, 227, 0.98), rgba(255, 233, 205, 0.92));
+}
+
+.heroInner {
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+  text-align: center;
+}
+
+.bubble {
+  max-width: 360px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink-soft);
+}
+
+.pet {
+  display: grid;
+  place-items: center;
+  width: 300px;
+  aspect-ratio: 1;
+  border-radius: 42px;
+  background: rgba(255, 255, 255, 0.66);
+  font-size: 7rem;
+}
+
+.formCard {
+  display: grid;
+  align-content: center;
+  gap: 20px;
+  padding: 40px;
+}
+
+.formCard h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.form label {
+  display: grid;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.form input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(116, 84, 49, 0.14);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.choiceGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.choiceCard {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border: 1px solid rgba(117, 83, 48, 0.14);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.62);
+  text-align: left;
+}
+
+.choiceCardActive {
+  border-color: rgba(228, 120, 50, 0.6);
+  background: rgba(255, 231, 204, 0.92);
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.primary {
+  min-width: 180px;
+  padding: 14px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-deep));
+  color: #fff;
+  font-weight: 800;
+}
+
+.hint {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 980px) {
+  .page {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .hero,
+  .formCard {
+    border-radius: 24px;
+  }
+
+  .hero,
+  .formCard {
+    padding: 24px;
+  }
+
+  .pet {
+    width: 220px;
+    font-size: 5.5rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primary {
+    width: 100%;
+    min-width: 0;
+  }
+}

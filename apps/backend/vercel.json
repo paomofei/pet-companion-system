@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    {
+      "path": "/api/internal/cron/tasks/generate-recurring",
+      "schedule": "0 16 * * *"
+    },
+    {
+      "path": "/api/internal/cron/tasks/mark-overdue",
+      "schedule": "5 16 * * *"
+    }
+  ]
+}

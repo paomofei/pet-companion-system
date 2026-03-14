@@ -1,2 +1,23 @@
 # macOS metadata
 .DS_Store
+
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+build
+coverage
+.next
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local tooling
+.codex
+.playwright-cli
+
+# TypeScript caches
+*.tsbuildinfo
